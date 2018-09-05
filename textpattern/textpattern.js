@@ -40,19 +40,13 @@ var langdir = document.documentElement.dir,
 
 function checkCookies()
 {
-    var date = new Date();
+    cookieEnabled = navigator.cookieEnabled && (document.cookie.indexOf('txp_test_cookie') >= 0 || document.cookie.indexOf('txp_login') >= 0);
 
-    date.setTime(date.getTime() + (60 * 1000));
-
-    document.cookie = 'testcookie=enabled; expired=' + date.toGMTString() + '; path=/';
-
-    cookieEnabled = (document.cookie.length > 2) ? true : false;
-
-    date.setTime(date.getTime() - (60 * 1000));
-
-    document.cookie = 'testcookie=; expires=' + date.toGMTString() + '; path=/';
-
-    return cookieEnabled;
+    if (!cookieEnabled) {
+        textpattern.Console.addMessage([textpattern.gTxt('cookies_must_be_enabled'), 1])
+    } else {
+        document.cookie = 'txp_test_cookie=; Max-Age=0;'
+    }
 }
 
 /**
@@ -705,7 +699,7 @@ textpattern.storage =
      * Textpattern localStorage data.
      */
 
-    data: (!window.localStorage ? null : JSON.parse(window.localStorage.getItem('textpattern.' + textpattern._txp_uid))) || {},
+    data: (!navigator.cookieEnabled || !window.localStorage ? null : JSON.parse(window.localStorage.getItem('textpattern.' + textpattern._txp_uid))) || {},
 
     /**
      * Updates data.
@@ -719,7 +713,7 @@ textpattern.storage =
         $.extend(true, textpattern.storage.data, data);
         textpattern.storage.clean(textpattern.storage.data);
 
-        if (window.localStorage) {
+        if (navigator.cookieEnabled && window.localStorage) {
             window.localStorage.setItem('textpattern.' + textpattern._txp_uid, JSON.stringify(textpattern.storage.data));
         }
     },
@@ -1002,12 +996,22 @@ jQuery.fn.txpAsyncForm = function (options) {
         if (typeof extra === 'undefined') extra = new Object;
 
         var $this = $(this);
+
+        // Safari workaround?
+        var $inputs = $('input[type="file"]:not([disabled])', $this);
+        $inputs.each(function(i, input) {
+            if (input.files.length > 0) return 
+            $(input).prop('disabled', true)
+        })
+
         var form =
         {
             data   : ( typeof window.FormData === 'undefined' ? $this.serialize() : new FormData(this) ),
             extra  : new Object,
             spinner: typeof extra['_txp_spinner'] !== 'undefined' ? $(extra['_txp_spinner']) : $('<span />').addClass('spinner ui-icon ui-icon-refresh')
         };
+
+        $inputs.prop('disabled', false);// Safari workaround.
 
         if (typeof extra['_txp_submit'] !== 'undefined') {
             form.button = $this.find(extra['_txp_submit']).eq(0);
@@ -1971,10 +1975,7 @@ textpattern.Route.add('setup', function () {
 
 textpattern.Route.add('login', function () {
     // Check cookies.
-    if (!checkCookies()) {
-        cookieEnabled = false;
-        $('main').prepend($('<p class="alert-block warning" />').text(textpattern.gTxt('cookies_must_be_enabled')));
-    }
+    cookieEnabled = checkCookies();
 
     // Focus on either username or password when empty.
     $('#login_form input').filter(function(){
@@ -2543,6 +2544,8 @@ $(document).ready(function () {
     // Attach multi-edit form.
     $('.multi_edit_form').txpMultiEditForm()
     $('table.txp-list').txpColumnize()
+
+    $('.txp-logout a').attr('href', 'index.php?logout=1&_txp_token='+textpattern._txp_token)
 
     // Initialize panel specific JavaScript.
     textpattern.Route.init();
