@@ -441,6 +441,7 @@ function list_list($message = '', $post = '')
                     ).
                     td($view_url ?
                         href($Status, $view_url, join_atts(array(
+                            'rel'    => 'noopener',
                             'target' => '_blank',
                             'title'  => gTxt('view'),
                         ), TEXTPATTERN_STRIP_EMPTY)) : $Status, '', 'txp-list-col-status'
@@ -605,9 +606,9 @@ function list_multi_edit()
             }
 
             if ($selected && safe_delete('textpattern', "ID IN (".join(',', $selected).")")) {
-                safe_update('txp_discuss', "visible = ".MODERATE, "parentid IN (".join(',', $selected).")");
                 callback_event('articles_deleted', '', 0, $selected);
                 callback_event('multi_edited.articles', 'delete', 0, compact('selected', 'field', 'value'));
+                safe_delete('txp_discuss', "parentid IN (".join(',', $selected).")");
                 update_lastmod('articles_deleted', $selected);
                 now('posted', true);
                 now('expires', true);

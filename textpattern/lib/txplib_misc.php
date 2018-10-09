@@ -2240,9 +2240,9 @@ function sanitizeForUrl($text, $strip = '/[^\p{L}\p{N}\-_\s\/\\\\]/u')
         return $out;
     }
 
-    // Remove names entities and tags.
+    // Remove named entities and tags.
     $text = preg_replace("/(^|&\S+;)|(<[^>]*>)/U", "", dumbDown($text));
-    // Remove all characters except letter, number, some emoji, dash, space and backslash
+    // Remove all characters except letter, number, dash, space and backslash
     $text = preg_replace($strip, '', $text);
     // Collapse spaces, minuses, (back-)slashes.
     $text = trim(preg_replace('/[\s\-\/\\\\]+/', '-', $text), '-');
@@ -4314,8 +4314,6 @@ function fetch_form($name)
 
         if ($form === false) {
             trigger_error(gTxt('form_not_found').' '.$name);
-
-            return false;
         }
 
         $forms[$name] = $form;
@@ -4349,7 +4347,7 @@ function parse_form($name)
     $name = (string) $name;
     $f = fetch_form($name);
 
-    if ($f) {
+    if ($f !== false) {
         if (!isset($stack[$name])) {
             $stack[$name] = 1;
         } elseif ($stack[$name] >= $depth) {
@@ -5411,8 +5409,10 @@ function join_atts($atts, $flags = TEXTPATTERN_STRIP_EMPTY_STRING, $glue = ' ')
             } else {
                 $value = txpspecialchars(join($glue, $value));
             }
-        } else {
+        } elseif ($name != 'href' && $name != 'src') {
             $value = txpspecialchars($value === true ? $name : $value);
+        } else {
+            $value = txpspecialchars(str_replace('&amp;', '&', $value));
         }
 
         if (!($flags & TEXTPATTERN_STRIP_EMPTY_STRING && $value === '')) {

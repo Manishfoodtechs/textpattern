@@ -26,11 +26,11 @@
 
 Textpattern tags, their attributes and values are explained within the "Textpattern User Documentation":https://docs.textpattern.com/, where you will also find valuable examples, advice and tutorials.
 
-There's also a group of friendly, helpful Textpattern users and administrators at the "Textpattern support forum":https://forum.textpattern.io/.
+There's also a group of friendly, helpful Textpattern users and administrators at the "Textpattern support forum":https://forum.textpattern.com/.
 
 Additional language translations and corrections are welcomed. Please visit "Textpattern language translations":https://textpattern.com/languages for further details.
 
-This is an example article included with Textpattern to demonstrate some of the first steps you can undertake. An example comment is associated with this article. The article and comment can be safely deleted using the "articles":adminurl/index.php?event=list and "comments":adminurl/index.php?event=discuss lists.]]></body>
+This is an <txp:permlink id="1">example article</txp:permlink> included with Textpattern to demonstrate some of the first steps you can undertake. An example comment is associated with this article. The article and comment can be safely deleted using the "articles":adminurl/index.php?event=list and "comments":adminurl/index.php?event=discuss lists.]]></body>
     <excerpt format="textile"><![CDATA[This is a Textpattern article excerpt. Article excerpts are optional and can be used effectively to summarize an article's content, for example with Textpattern's built-in article syndication.]]></excerpt>
     <comment>
         <name>Donald Swain</name>
